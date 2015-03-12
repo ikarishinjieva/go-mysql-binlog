@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"bufio"
 	"database/sql/driver"
 	"encoding/binary"
 	"bytes"
@@ -759,3 +760,14 @@ func (mc *mysqlConn) DumpBinlog(filename string, position uint32) (driver.Rows, 
 	return nil, nil
 }
 
+func ReadBinlogEventHeader(reader *bufio.Reader) (*EventHeader, error) {
+	bs, err := reader.Peek(19)
+	if nil != err {
+		return nil, err
+	}
+	header := EventHeader{}
+	if err := binary.Read(bytes.NewReader(bs), binary.LittleEndian, &header); nil != err {
+		return nil, err
+	}
+	return &header, nil
+}
