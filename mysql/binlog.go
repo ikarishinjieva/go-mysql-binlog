@@ -146,7 +146,7 @@ type QueryEvent struct {
 	query string
 }
 
-func parseQueryEvent(buf *bytes.Buffer) (event *QueryEvent, err error) {
+func ParseQueryEvent(buf *bytes.Buffer) (event *QueryEvent, err error) {
 	var schemaLength byte
 	var statusVarsLength uint16
 
@@ -166,6 +166,10 @@ func parseQueryEvent(buf *bytes.Buffer) (event *QueryEvent, err error) {
 
 func (event *QueryEvent) Header() (*EventHeader) {
 	return &event.header
+}
+
+func (event *QueryEvent) Query() (string) {
+	return event.query
 }
 
 func (event *QueryEvent) Print() {
@@ -598,7 +602,7 @@ func (parser *eventParser) parseEvent(data []byte) (event BinlogEvent, err error
 		event = parser.format
 		return
 	case QUERY_EVENT:
-		return parseQueryEvent(buf)
+		return ParseQueryEvent(buf)
 	case ROTATE_EVENT:
 		return parseRotateEvent(buf)
 	case TABLE_MAP_EVENT:
