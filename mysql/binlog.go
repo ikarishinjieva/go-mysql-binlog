@@ -564,25 +564,29 @@ func (event *TableMapEvent) columnTypeNames() (names []string) {
 }
 
 type GtidEvent struct {
-	Header EventHeader
-	CommitFlag byte
-	Sid string
-	Gno uint64
+	header EventHeader
+	commitFlag byte
+	sid string
+	gno uint64
+}
+
+func (event *GtidEvent) GtidDesc() string {
+	return fmt.Sprintf("%v:%v", event.sid, event.gno)
 }
 
 func ParseGtidEvent(buf *bytes.Buffer) (event *GtidEvent, err error) {
 	event = new(GtidEvent)
-	if err := binary.Read(buf, binary.LittleEndian, &event.CommitFlag); nil != err {
+	if err := binary.Read(buf, binary.LittleEndian, &event.commitFlag); nil != err {
 		return nil, err
 	}
-	if err := binary.Read(buf, binary.LittleEndian, &event.Header); nil != err {
+	if err := binary.Read(buf, binary.LittleEndian, &event.header); nil != err {
 		return nil, err
 	}
 	{
 		uuid := hex.EncodeToString(buf.Next(16))
-		event.Sid = uuid[0:8] + "-" + uuid[8:12] + "-" + uuid[12:16] + "-" + uuid[16:20] + "-" + uuid[20:]
+		event.sid = uuid[0:8] + "-" + uuid[8:12] + "-" + uuid[12:16] + "-" + uuid[16:20] + "-" + uuid[20:]
 	}
-	if err := binary.Read(buf, binary.LittleEndian, &event.Gno); nil != err {
+	if err := binary.Read(buf, binary.LittleEndian, &event.gno); nil != err {
 		return nil, err
 	}
 	return event, nil
