@@ -10,7 +10,7 @@ package mysql
 
 import (
 	"bufio"
-	"database/sql"
+	// "database/sql"
 	"database/sql/driver"
 	"errors"
 	"net"
@@ -68,5 +68,5 @@ func (d *mysqlDriver) Open(dsn string) (driver.Conn, error) {
 }
 
 func init() {
-	sql.Register("mysql", &mysqlDriver{})
+	// sql.Register("mysql", &mysqlDriver{})
 }
