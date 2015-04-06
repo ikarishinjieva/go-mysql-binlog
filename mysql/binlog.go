@@ -114,7 +114,7 @@ type RotateEvent struct {
 	filename string
 }
 
-func parseRotateEvent(buf *bytes.Buffer) (event *RotateEvent, err error) {
+func ParseRotateEvent(buf *bytes.Buffer) (event *RotateEvent, err error) {
 	event = new(RotateEvent)
 	err = binary.Read(buf, binary.LittleEndian, &event.header)
 	err = binary.Read(buf, binary.LittleEndian, &event.position)
@@ -129,6 +129,14 @@ func (event *RotateEvent) Header() *EventHeader {
 func (event *RotateEvent) Print() {
 	event.header.Print()
 	fmt.Printf("position: %v, filename: %#v\n", event.position, event.filename)
+}
+
+func (event *RotateEvent) Position() uint64 {
+	return event.position
+}
+
+func (event *RotateEvent) Filename() string {
+	return event.filename
 }
 
 type QueryEvent struct {
@@ -656,7 +664,7 @@ func (parser *eventParser) parseEvent(data []byte) (event BinlogEvent, err error
 	case QUERY_EVENT:
 		return ParseQueryEvent(buf)
 	case ROTATE_EVENT:
-		return parseRotateEvent(buf)
+		return ParseRotateEvent(buf)
 	case TABLE_MAP_EVENT:
 		var table_map_event *TableMapEvent
 		table_map_event, err = ParseTableMapEvent(buf, parser.format)
@@ -793,6 +801,11 @@ func (header *EventHeader) FlagNames() (names []string) {
 
 func (header *EventHeader) Print() {
 	fmt.Printf("Timestamp: %v, EventType: %v, ServerId: %v, EventSize: %v, LogPos: %v, Flags: %v\n",
+		time.Unix(int64(header.Timestamp), 0), header.EventName(), header.ServerId, header.EventSize, header.LogPos, header.FlagNames())
+}
+
+func (header *EventHeader) String() string {
+	return fmt.Sprintf("Timestamp: %v, EventType: %v, ServerId: %v, EventSize: %v, LogPos: %v, Flags: %v\n",
 		time.Unix(int64(header.Timestamp), 0), header.EventName(), header.ServerId, header.EventSize, header.LogPos, header.FlagNames())
 }
 
